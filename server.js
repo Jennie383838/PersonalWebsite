@@ -23,8 +23,8 @@ app.use(express.json());
 
 const allowedOrigins = [
     "http://localhost:3000",
-    "https://card-app-starter-z9o9.vercel.app",
-    "https://onlinecardappwebservice-iu6e.onrender.com",
+    //"https://card-app-starter-z9o9.vercel.app",
+    //"https://onlinecardappwebservice-iu6e.onrender.com",
 ];
 
 app.use(
