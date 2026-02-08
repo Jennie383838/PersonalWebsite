@@ -1,10 +1,9 @@
 // include required packages
 const express = require('express');
 const mysql = require('mysql2/promise');
-const cors = require("cors");
 require('dotenv').config();
 
-const port = process.env.PORT || 3000;
+const port = 3000; // same port as your other server
 
 // database config
 const dbConfig = {
@@ -19,29 +18,7 @@ const dbConfig = {
 };
 
 const app = express();
-// middleware
 app.use(express.json());
-
-const allowedOrigins = [
-    "http://localhost:3000",
-    //"https://card-app-starter-z9o9.vercel.app",
-    //"https://onlinecardappwebservice-iu6e.onrender.com",
-];
-
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
-
 
 app.listen(port, () => console.log(`Product server started on port ${port}`));
 
@@ -60,7 +37,7 @@ app.get('/products', async (req, res) => {
 });
 
 /* C = Create product */
-app.post('/addproduct', async (req, res) => {
+app.post('/addproducts', async (req, res) => {
     const { card_name, card_price, card_status, card_image } = req.body;
     try {
         const connection = await mysql.createConnection(dbConfig);
@@ -76,7 +53,7 @@ app.post('/addproduct', async (req, res) => {
 });
 
 /* U = Update product */
-app.put('/updateproduct/:id', async (req, res) => {
+app.put('/updateproducts/:id', async (req, res) => {
     const { id } = req.params;
     const { card_name, card_price, card_status, card_image } = req.body;
     try {
@@ -93,7 +70,7 @@ app.put('/updateproduct/:id', async (req, res) => {
 });
 
 /* D = Delete product */
-app.delete('/deleteproduct/:id', async (req, res) => {
+app.delete('/deleteproducts/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const connection = await mysql.createConnection(dbConfig);
