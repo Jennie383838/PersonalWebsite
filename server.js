@@ -81,6 +81,7 @@ app.delete('/deleteproduct/:id', async (req, res) => {
         res.json({ message: 'Product deleted' });
     } catch (err) {
         console.error(err);
+
         res.status(500).json({ message: 'Delete error' });
     }
 });
