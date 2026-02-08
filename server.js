@@ -1,6 +1,7 @@
 // include required packages
 const express = require('express');
 const mysql = require('mysql2/promise');
+const cors = require("cors");
 require('dotenv').config();
 
 const port = 3000; // same port as your other server
