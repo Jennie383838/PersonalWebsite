@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');
 const cors = require("cors");
 require('dotenv').config();
 
-const port = 3000; // same port as your other server
+const port = process.env.PORT || 3000;
 
 // database config
 const dbConfig = {
@@ -60,7 +60,7 @@ app.get('/products', async (req, res) => {
 });
 
 /* C = Create product */
-app.post('/addproducts', async (req, res) => {
+app.post('/addproduct', async (req, res) => {
     const { card_name, card_price, card_status, card_image } = req.body;
     try {
         const connection = await mysql.createConnection(dbConfig);
@@ -76,7 +76,7 @@ app.post('/addproducts', async (req, res) => {
 });
 
 /* U = Update product */
-app.put('/updateproducts/:id', async (req, res) => {
+app.put('/updateproduct/:id', async (req, res) => {
     const { id } = req.params;
     const { card_name, card_price, card_status, card_image } = req.body;
     try {
@@ -93,7 +93,7 @@ app.put('/updateproducts/:id', async (req, res) => {
 });
 
 /* D = Delete product */
-app.delete('/deleteproducts/:id', async (req, res) => {
+app.delete('/deleteproduct/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const connection = await mysql.createConnection(dbConfig);
