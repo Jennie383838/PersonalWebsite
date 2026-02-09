@@ -143,6 +143,10 @@ app.delete("/products/:id", async (req, res) => {
 // =======================
 // Start Server
 // =======================
-app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
+// =======================
+// Start Server
+// =======================
+app.listen(PORT, () => {
+    console.log(`🚀 Server started on port ${PORT}`);
 });
+
