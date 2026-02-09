@@ -55,7 +55,7 @@ const pool = mysql.createPool({
 // Health Check (important)
 // =======================
 app.get("/", (req, res) => {
-    res.send("✅ Product API is running");
+    res.send(" Product API is running");
 });
 
 // =======================
@@ -142,6 +142,6 @@ app.delete("/products/:id", async (req, res) => {
 // =======================
 // Start Server
 // =======================
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
 });
