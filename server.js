@@ -1,6 +1,7 @@
 // include required packages
 const express = require('express');
 const mysql = require('mysql2/promise');
+const cors = require("cors");
 require('dotenv').config();
 
 const port = 3000; // same port as your other server
@@ -18,6 +19,28 @@ const dbConfig = {
 };
 
 const app = express();
+// middleware
+app.use(express.json());
+
+const allowedOrigins = [
+    "http://localhost:3000",
+    // "https://card-app-starter-z9o9.vercel.app",
+    "https://personalwebsite-1-ngee.onrender.com",
+];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 app.use(express.json());
 
 app.listen(port, () => console.log(`Product server started on port ${port}`));
