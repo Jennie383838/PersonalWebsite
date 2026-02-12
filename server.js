@@ -14,7 +14,7 @@ app.use(express.json());
 const allowedOrigins = [
     "http://localhost:3000",
     "https://personalwebsite-1-ngee.onrender.com",
-    "https://ramis-dreamland-avrq.vercel.app/",
+    "https://ramis-dreamland-avrq.vercel.app",
 ];
 
 app.use(
