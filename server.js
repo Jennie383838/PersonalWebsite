@@ -10,7 +10,7 @@ require("dotenv").config();
 // App & Port
 // =======================
 const app = express();
-const PORT = process.env.PORT || 3000; // NOT 3000
+const PORT = process.env.PORT || 3000;
 
 // =======================
 // Middleware
@@ -20,13 +20,12 @@ app.use(express.json());
 const allowedOrigins = [
     "http://localhost:3000",
     "https://personalwebsite-1-ngee.onrender.com",
-    "https://ramis-dreamland.vercel.app"
+    "https://ramis-dreamland.vercel.app",
 ];
 
 app.use(
     cors({
         origin(origin, callback) {
-            // allow requests with no origin (Postman, curl)
             if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
@@ -53,20 +52,18 @@ const pool = mysql.createPool({
 });
 
 // =======================
-// Health Check (important)
+// Health Check
 // =======================
 app.get("/", (req, res) => {
-    res.send(" Product API is running");
+    res.send("Product API is running");
 });
 
 // =======================
-// R = Read all products
+// PRODUCTS ROUTES
 // =======================
 app.get("/products", async (req, res) => {
     try {
-        const [rows] = await pool.execute(
-            "SELECT * FROM Products"
-        );
+        const [rows] = await pool.execute("SELECT * FROM Products");
         res.json(rows);
     } catch (err) {
         console.error("READ ERROR:", err);
@@ -74,9 +71,6 @@ app.get("/products", async (req, res) => {
     }
 });
 
-// =======================
-// C = Create product
-// =======================
 app.post("/products", async (req, res) => {
     const { card_name, card_price, card_status, card_image } = req.body;
 
@@ -87,8 +81,8 @@ app.post("/products", async (req, res) => {
     try {
         await pool.execute(
             `INSERT INTO Products 
-      (card_name, card_price, card_status, card_image) 
-      VALUES (?, ?, ?, ?)`,
+       (card_name, card_price, card_status, card_image) 
+       VALUES (?, ?, ?, ?)`,
             [card_name, card_price, card_status, card_image]
         );
 
@@ -100,53 +94,68 @@ app.post("/products", async (req, res) => {
 });
 
 // =======================
-// U = Update product
+// CREATE ORDER
 // =======================
-app.put("/products/:id", async (req, res) => {
-    const { id } = req.params;
-    const { card_name, card_price, card_status, card_image } = req.body;
+app.post("/orders", async (req, res) => {
+    const { customer, cart, total } = req.body;
+
+    if (!customer || !cart || cart.length === 0) {
+        return res.status(400).json({ message: "Invalid order data" });
+    }
+
+    const connection = await pool.getConnection();
 
     try {
-        await pool.execute(
-            `UPDATE Products 
-       SET card_name=?, card_price=?, card_status=?, card_image=? 
-       WHERE id=?`,
-            [card_name, card_price, card_status, card_image, id]
+        await connection.beginTransaction();
+
+        const [orderResult] = await connection.execute(
+            `INSERT INTO Orders 
+      (customer_name, customer_email, customer_phone, customer_address, total)
+      VALUES (?, ?, ?, ?, ?)`,
+            [
+                customer.name,
+                customer.email,
+                customer.phone,
+                customer.address,
+                total,
+            ]
         );
 
-        res.json({ message: "Product updated" });
+        const orderId = orderResult.insertId;
+
+        for (const item of cart) {
+            await connection.execute(
+                `INSERT INTO OrderItems
+        (order_id, product_id, product_name, product_price, quantity)
+        VALUES (?, ?, ?, ?, ?)`,
+                [
+                    orderId,
+                    item.id,
+                    item.card_name,
+                    item.card_price,
+                    item.qty,
+                ]
+            );
+        }
+
+        await connection.commit();
+
+        res.status(201).json({
+            message: "Order saved successfully",
+            orderId,
+        });
     } catch (err) {
-        console.error("UPDATE ERROR:", err);
-        res.status(500).json({ message: "Update error" });
+        await connection.rollback();
+        console.error("ORDER ERROR:", err);
+        res.status(500).json({ message: "Order save error" });
+    } finally {
+        connection.release();
     }
 });
 
-// =======================
-// D = Delete product
-// =======================
-app.delete("/products/:id", async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        await pool.execute(
-            "DELETE FROM Products WHERE id = ?",
-            [id]
-        );
-
-        res.json({ message: "Product deleted" });
-    } catch (err) {
-        console.error("DELETE ERROR:", err);
-        res.status(500).json({ message: "Delete error" });
-    }
-});
-
-// =======================
-// Start Server
-// =======================
 // =======================
 // Start Server
 // =======================
 app.listen(PORT, () => {
     console.log(`🚀 Server started on port ${PORT}`);
 });
-
